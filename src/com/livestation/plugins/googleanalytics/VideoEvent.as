@@ -1,7 +1,5 @@
 package com.livestation.plugins.googleanalytics {
-  
-  import com.longtailvideo.jwplayer.utils.Logger;
-  
+
   import com.google.analytics.AnalyticsTracker;
   import com.google.analytics.GATracker;
   
@@ -25,9 +23,7 @@ package com.livestation.plugins.googleanalytics {
     public static var ERROR:String = "Error";
       
       
-    public static function track(tracker:AnalyticsTracker, category:String, action:String, label:String, value:Number, noninteraction:Boolean=false):void{
-      var logEntry = "VideoEvent: " + category + " [" + action + "] " + label + " : " + value.toString();
-      Logger.log(logEntry, "LS-GOOGLEANALYTICS");
+    public static function track(tracker:AnalyticsTracker, category:String, action:String, label:String, value:Number, noninteraction:Boolean=false):void{      
       tracker.trackEvent(category, action, label, value);
     }
     
