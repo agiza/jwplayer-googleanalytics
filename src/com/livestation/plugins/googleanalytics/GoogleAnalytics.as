@@ -1,4 +1,4 @@
-package com.livestation.plugins.galivestation {
+package com.livestation.plugins.googleanalytics {
 
   import com.longtailvideo.jwplayer.player.*;
   import com.longtailvideo.jwplayer.events.*;
@@ -18,7 +18,7 @@ package com.livestation.plugins.galivestation {
   import flash.utils.*;
   
   // * Watch Live Plugin; Just adds a button which links back to the live channel
-  public class GALivestation extends MovieClip implements IPlugin {
+  public class GoogleAnalytics extends MovieClip implements IPlugin {
 
     private var _player:IPlayer;
     private var _config:PluginConfig;
@@ -27,7 +27,7 @@ package com.livestation.plugins.galivestation {
     private var _gaMode:String = "Bridge";
     private var _gaDebug:Boolean = false;
     private var _trackAdverts:Boolean = false;
-    private var _categoryPrefix:String = "[LS] ";
+    private var _categoryPrefix:String = "";
     
     private var _label:String;
     private var _action:String;
@@ -35,7 +35,7 @@ package com.livestation.plugins.galivestation {
     private var _timeWatched:int = 0;
     private var _lastPlayTime:int = 0;            
     
-    public function GALivestation():void {}
+    public function GoogleAnalytics():void {}
      
     /** The initialize call is invoked by the player. **/
     public function initPlugin(player:IPlayer, cfg:PluginConfig):void {
@@ -62,7 +62,7 @@ package com.livestation.plugins.galivestation {
         // Initialize event listeners
         initializeEvents();
       }else{
-        log("Please supply account ID as galivestation.accountid in configuration");
+        log("Please supply account ID as googleanalytics.accountid in configuration");
       }
     }
 
@@ -73,12 +73,12 @@ package com.livestation.plugins.galivestation {
     
     // Config object
     public function get config():PluginConfig {
-      return _player.config.pluginConfig('galivestation');
+      return _player.config.pluginConfig('googleanalytics');
     }
     
     // ID of the plugin
     public function get id():String {
-      return "galivestation";
+      return "googleanalytics";
     }
     
     // Receive function calls from Javascript

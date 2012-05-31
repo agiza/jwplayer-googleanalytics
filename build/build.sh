@@ -3,5 +3,5 @@
 FLEXPATH=/Developer/SDKs/flex_sdk_3
 
 echo "Compiling with MXMLC..."
-$FLEXPATH/bin/mxmlc ../src/com/livestation/plugins/galivestation/GALivestation.as -sp ../src -o ../galivestation.swf -library-path+=../lib -load-externs=../lib/sdk-classes.xml -use-network=false -optimize=true -incremental=false
-cp ../galivestation.swf /Users/joeconnor/git/api-livestation-com/public/player/5.7/plugins/galivestation.swf
+$FLEXPATH/bin/mxmlc ../src/com/livestation/plugins/googleanalytics/GoogleAnalytics.as -sp ../src -o ../googleanalytics.swf -library-path+=../lib -load-externs=../lib/sdk-classes.xml -use-network=false -optimize=true -incremental=false
+cp ../googleanalytics.swf /Users/joeconnor/git/api-livestation-com/public/player/5.7/plugins/googleanalytics.swf
