@@ -249,16 +249,19 @@ package com.livestation.plugins.googleanalytics {
       _viewTimer.start();
     }
     
+    // FIXME: Remove old code
     private function resetPlayTimer():void{
       _viewTimer.start();
       _lastPlayTime = getTimer();
     }
     
+    // FIXME: Use new timers
     private function secondsPlayed():Number{
       _timeWatched = (getTimer() - _lastPlayTime) / 1000;
       return _timeWatched;
     }
     
+    // Get the next interval to run the timer for
     private function nextViewTimerInterval():int{
       if(_currentViewTimerIntervalIndex < _channelViewTimerIntervals.length){
         _currentViewTimerIntervalIndex += 1;
