@@ -92,10 +92,11 @@ package com.livestation.plugins.googleanalytics {
       _fullscreen = _player.config.fullscreen;
       _volume = _player.config.volume;
       _startTime = 0;
-      
-      log("Started Google Analytics Plugin v2.0");
-      
+
       initConfig();      
+      
+      log("Started Google Analytics Plugin v2.1");
+      
       initJavaScriptCallbacks();
       initGoogleAnalyticsTracker();
       initTimer();
@@ -110,7 +111,6 @@ package com.livestation.plugins.googleanalytics {
       _action = config['action'];
       _trackAdverts = config['trackadverts'] || false;
       _category = config["category"] || CategoryType.CHANNEL;
-      
       if(config["mode"] !== undefined){
         _gaMode = config["mode"];
       }
@@ -244,7 +244,7 @@ package com.livestation.plugins.googleanalytics {
     
     // Event handler for timer complete event
     private function timerCompleteListener(e:TimerEvent):void{
-      trackEvent(_category, "Heartbeat", _label, _channelViewTimerIntervals[_currentViewTimerIntervalIndex])
+      trackEvent(_category, "Heartbeat", _label, viewTimerIntervals()[_currentViewTimerIntervalIndex])
       initTimer();
       _viewTimer.start();
     }
@@ -263,10 +263,22 @@ package com.livestation.plugins.googleanalytics {
     
     // Get the next interval to run the timer for
     private function nextViewTimerInterval():int{
-      if(_currentViewTimerIntervalIndex < _channelViewTimerIntervals.length){
+      if(_currentViewTimerIntervalIndex < viewTimerIntervals().length-1){
         _currentViewTimerIntervalIndex += 1;
       }
-      return (_channelViewTimerIntervals[_currentViewTimerIntervalIndex] * 1000)
+      log(_currentViewTimerIntervalIndex.toString());
+      return (viewTimerIntervals()[_currentViewTimerIntervalIndex] * 1000)
+    }
+    
+    private function viewTimerIntervals():Array{
+      switch(_category){
+        case "Clip":
+          return _clipViewTimerIntervals;
+          break;
+        default:
+          return _channelViewTimerIntervals;
+          break;
+      }
     }
     
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -330,6 +342,7 @@ package com.livestation.plugins.googleanalytics {
     // Fired when the media reaches the end 
     private function mediaComplete(evt:MediaEvent):void{
       trackEvent(_category, VideoEvent.END, _label, secondsPlayed());
+      _viewTimer.stop();
     }
     
     // Fired when the volume goes up or down
