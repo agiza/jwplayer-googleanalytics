@@ -314,6 +314,7 @@ package com.livestation.plugins.googleanalytics {
         case "PAUSED":
           if(evt.oldstate == "PLAYING"){
             trackEvent(_category, VideoEvent.PAUSE, _label, secondsPlayed());
+            _viewTimer.stop();
           }
           break;
       }
