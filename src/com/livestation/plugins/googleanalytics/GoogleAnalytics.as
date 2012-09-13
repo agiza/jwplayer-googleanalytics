@@ -50,8 +50,9 @@ package com.livestation.plugins.googleanalytics {
     private var _label:String;
     private var _action:String;
     
-    private var _timeWatched:int = 0;
     private var _lastPlayTime:int = 0;
+    private var _lastHeartbeatTime:int = 0;
+    private var _timeSinceHeartbeat:int = 0;
     
     private var _startTime:int;
     private var _viewTimer:Timer;
@@ -245,6 +246,8 @@ package com.livestation.plugins.googleanalytics {
     // Event handler for timer complete event
     private function timerCompleteListener(e:TimerEvent):void{
       trackEvent(_category, "Heartbeat", _label, viewTimerIntervals()[_currentViewTimerIntervalIndex])
+      _lastHeartbeatTime = getTimer();
+      log(_lastHeartbeatTime.toString());
       initTimer();
       _viewTimer.start();
     }
@@ -253,11 +256,22 @@ package com.livestation.plugins.googleanalytics {
     private function resetPlayTimer():void{
       _viewTimer.start();
       _lastPlayTime = getTimer();
+      _lastHeartbeatTime = getTimer();
     }
     
     // FIXME: Use new timers
     private function secondsPlayed():Number{
-      _timeWatched = (getTimer() - _lastPlayTime) / 1000;
+      var _timeWatched:int = 0;
+      switch(_category){
+        case "Clip":
+          _timeWatched = (getTimer() - _lastPlayTime) / 1000;
+          break;
+        default:
+          log(getTimer().toString());
+          log(_lastHeartbeatTime.toString());
+          _timeWatched = (getTimer() - _lastHeartbeatTime) / 1000;
+          break;
+      }
       return _timeWatched;
     }
     
@@ -315,6 +329,8 @@ package com.livestation.plugins.googleanalytics {
           if(evt.oldstate == "PLAYING"){
             trackEvent(_category, VideoEvent.PAUSE, _label, secondsPlayed());
             _viewTimer.stop();
+            _currentViewTimerIntervalIndex = -1;
+            initTimer();
           }
           break;
       }
