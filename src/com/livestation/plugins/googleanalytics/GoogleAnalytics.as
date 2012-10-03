@@ -25,7 +25,8 @@ package com.livestation.plugins.googleanalytics {
   
   import com.livestation.plugins.googleanalytics.VideoEvent;
   import com.livestation.plugins.googleanalytics.CategoryType;
-
+  import com.livestation.plugins.googleanalytics.CustomVariable;
+  
   // * Watch Live Plugin; Just adds a button which links back to the live channel
   public class GoogleAnalytics extends MovieClip implements IPlugin {
 
@@ -46,6 +47,11 @@ package com.livestation.plugins.googleanalytics {
     private var _currentPosition:Number = 0;
     private var _volume:Number;
     private var _category:String;
+    
+    private var _customVarId:int;
+    private var _customVarName:String;
+    private var _customVarValue:String;
+    private var _customVarScope:int;
     
     private var _label:String;
     private var _action:String;
@@ -96,10 +102,13 @@ package com.livestation.plugins.googleanalytics {
 
       initConfig();      
       
-      log("Started Google Analytics Plugin v2.1");
+      log("Started Google Analytics Plugin v2.2");
       
       initJavaScriptCallbacks();
       initGoogleAnalyticsTracker();
+      
+      setCustomVar(_customVarId, _customVarName, _customVarValue, _customVarScope);
+      
       initTimer();
     }
     
@@ -112,12 +121,20 @@ package com.livestation.plugins.googleanalytics {
       _action = config['action'];
       _trackAdverts = config['trackadverts'] || false;
       _category = config["category"] || CategoryType.CHANNEL;
+      
+      _customVarId = config['customvarid'];
+      _customVarName = config['customvarname'];
+      _customVarValue = config['customvarvalue'];
+      _customVarScope = config['customvarscope'];
+    
       if(config["mode"] !== undefined){
         _gaMode = config["mode"];
       }
       if(config["domain"] !== undefined){
         _domain = config['domain'];
       }
+      
+
     }
     
     // Allow events from JavaScript to be received
@@ -130,6 +147,7 @@ package com.livestation.plugins.googleanalytics {
       if(_gaUA != null){
         _tracker = new GATracker(this, _gaUA, _gaMode, _gaDebug);
         _tracker.setDomainName(_domain);
+        
         initEvents();
       }else{
         log(ANALYTICS_INIT_ERROR);
@@ -225,7 +243,11 @@ package com.livestation.plugins.googleanalytics {
         category = CategoryType.PREROLL;
       }
       VideoEvent.track(_tracker, category, action, label, value);
-    }    
+    }  
+    
+    private function setCustomVar(id:int, name:String, label:String, scope:int=3):void{
+      CustomVariable.set(_tracker, id, name, label, scope);
+    }  
     
 
     
@@ -247,7 +269,6 @@ package com.livestation.plugins.googleanalytics {
     private function timerCompleteListener(e:TimerEvent):void{
       trackEvent(_category, "Heartbeat", _label, viewTimerIntervals()[_currentViewTimerIntervalIndex])
       _lastHeartbeatTime = getTimer();
-      log(_lastHeartbeatTime.toString());
       initTimer();
       _viewTimer.start();
     }
@@ -262,16 +283,7 @@ package com.livestation.plugins.googleanalytics {
     // FIXME: Use new timers
     private function secondsPlayed():Number{
       var _timeWatched:int = 0;
-      switch(_category){
-        case "Clip":
-          _timeWatched = (getTimer() - _lastPlayTime) / 1000;
-          break;
-        default:
-          log(getTimer().toString());
-          log(_lastHeartbeatTime.toString());
-          _timeWatched = (getTimer() - _lastHeartbeatTime) / 1000;
-          break;
-      }
+      _timeWatched = (getTimer() - _lastHeartbeatTime) / 1000;
       return _timeWatched;
     }
     
@@ -280,7 +292,6 @@ package com.livestation.plugins.googleanalytics {
       if(_currentViewTimerIntervalIndex < viewTimerIntervals().length-1){
         _currentViewTimerIntervalIndex += 1;
       }
-      log(_currentViewTimerIntervalIndex.toString());
       return (viewTimerIntervals()[_currentViewTimerIntervalIndex] * 1000)
     }
     
@@ -327,6 +338,8 @@ package com.livestation.plugins.googleanalytics {
                     
         case "PAUSED":
           if(evt.oldstate == "PLAYING"){
+            // Stop the timer, reset the intervals back to initial, so next time we start the timer it starts the heartbeats from 10s again
+            // Otherwise we could wait up to 5m for the next heartbeat
             trackEvent(_category, VideoEvent.PAUSE, _label, secondsPlayed());
             _viewTimer.stop();
             _currentViewTimerIntervalIndex = -1;
@@ -360,6 +373,8 @@ package com.livestation.plugins.googleanalytics {
     private function mediaComplete(evt:MediaEvent):void{
       trackEvent(_category, VideoEvent.END, _label, secondsPlayed());
       _viewTimer.stop();
+      _currentViewTimerIntervalIndex = -1;
+      initTimer();
     }
     
     // Fired when the volume goes up or down

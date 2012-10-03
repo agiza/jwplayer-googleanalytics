@@ -24,7 +24,7 @@ package com.livestation.plugins.googleanalytics {
       
       
     public static function track(tracker:AnalyticsTracker, category:String, action:String, label:String, value:Number, noninteraction:Boolean=false):void{      
-      tracker.trackEvent(category, action, label, value);
+      tracker.trackEvent(category, action, label, value, noninteraction);
     }
     
   }
