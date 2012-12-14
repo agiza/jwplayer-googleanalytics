@@ -48,10 +48,7 @@ package com.livestation.plugins.googleanalytics {
     private var _volume:Number;
     private var _category:String;
     
-    private var _customVarId:int;
-    private var _customVarName:String;
-    private var _customVarValue:String;
-    private var _customVarScope:int;
+    private var _customVars:Array = [];
     
     private var _label:String;
     private var _action:String;
@@ -107,13 +104,15 @@ package com.livestation.plugins.googleanalytics {
       initJavaScriptCallbacks();
       initGoogleAnalyticsTracker();
       
-      setCustomVar(_customVarId, _customVarName, _customVarValue, _customVarScope);
+      for(var i:int=0; i < _customVars.length; i++){
+        setCustomVar(_customVars[i].id, _customVars[i].name, _customVars[i].value, _customVars[i].scope);        
+      }
       
       initTimer();
     }
     
     // Set some private variables based on config options or defaults
-    private function  initConfig():void{
+    private function initConfig():void{
       // Set some config options
       _gaUA = config['accountid'];
       _gaDebug = config['debug'] || false;
@@ -122,11 +121,6 @@ package com.livestation.plugins.googleanalytics {
       _trackAdverts = config['trackadverts'] || false;
       _category = config["category"] || CategoryType.CHANNEL;
       
-      _customVarId = config['customvarid'];
-      _customVarName = config['customvarname'];
-      _customVarValue = config['customvarvalue'];
-      _customVarScope = config['customvarscope'];
-    
       if(config["mode"] !== undefined){
         _gaMode = config["mode"];
       }
@@ -134,7 +128,23 @@ package com.livestation.plugins.googleanalytics {
         _domain = config['domain'];
       }
       
-
+      initCustomVariable("1");
+      initCustomVariable("2");
+      initCustomVariable("3");
+     
+    }
+    
+    // Init custom variable by ID
+    private function initCustomVariable(num:String):CustomVariable{
+      var cv:CustomVariable = new CustomVariable;
+      if(config["customvar" + num + "id"] != null){
+        cv.id = config["customvar" + num + "id"];
+        cv.name = config["customvar" + num + "name"];
+        cv.value = config["customvar" + num + "value"];
+        cv.scope = config["customvar" + num + "scope"];  
+        _customVars.push(cv);
+      }
+      return cv;
     }
     
     // Allow events from JavaScript to be received
